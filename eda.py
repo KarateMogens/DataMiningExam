@@ -6,7 +6,7 @@ import seaborn as sns
 from utils import get_dfs
 
 # %%
-data_df, data_ordinal_df = get_dfs()
+data_df, data_ordinal_df, holdout_df = get_dfs()
 data_df.describe()
 
 # %%

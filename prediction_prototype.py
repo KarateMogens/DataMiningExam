@@ -16,7 +16,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error, multilabel_confusion_matrix
 from pprint import pprint
 
-data_df, data_ordinal_df = get_dfs()
+data_df, data_ordinal_df, holdout_df = get_dfs()
 # %%
 # TRYING TO PREDICT TRACK POPULARITY BASED ON MUSICAL FEATURES
 X = data_ordinal_df
