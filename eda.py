@@ -81,3 +81,8 @@ plot_features_by_year_compare_genres(data_df)
 plot_yearly_features_by_genre(data_df)
 
 # %%
+# bare for at bevise at 'key' og 'mode' ikke nødvendigvis er korrekte
+bjork = data_df[data_df['track_artist'] == 'Björk']
+bjork['key'].head()
+
+# %%
