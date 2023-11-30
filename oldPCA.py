@@ -43,26 +43,28 @@ final_df.head()
 from sklearn.preprocessing import StandardScaler
 
 allCols = final_df.loc[:, features].values
-allCols = StandardScaler().fit_transform(allCols) #normalize all features
+allCols = StandardScaler().fit_transform(allCols)
 allCols.shape
 #checking mean and standard deviation
 np.mean(allCols), np.std(allCols)
 
 #converting into tabular format: 
-feat_cols = ['feature '+str(i) for i in range(allCols.shape[1])]
-normalized_spotify_df = pd.DataFrame(allCols,columns=feat_cols)
+feat_cols = final_df.loc[:, features].columns.tolist()  # List of original column names
+normalized_spotify_df = pd.DataFrame(allCols, columns=feat_cols)
 print(normalized_spotify_df)
 normalized_spotify_df.shape
 # %%
 #projecting the 12-dimensional data into 2-dimensional principal components
 from sklearn.decomposition import PCA
-pca_spotify = PCA(n_components=8)
+pca_spotify = PCA(n_components=2)
 principalComponents = pca_spotify.fit_transform(allCols)
 
 #creating datafame
 number_of_components = pca_spotify.n_components_
-component_names = [f"principal component: {n+1}" for n in range(number_of_components)]
-PC_spotify_df = pd.DataFrame(data = principalComponents, columns= component_names)
+component_names = [f"principal component {n+1}" for n in range(number_of_components)]
+PC_spotify_df = pd.DataFrame(data = principalComponents, columns=component_names)
+PC_spotify_df.columns = [f"principal component {n+1}: {feat_cols[n]}" for n in range(pca_spotify.n_components_)]
+
 print(PC_spotify_df)
 
 print("Each principal component represents a percentage of total variation captured from the data")
