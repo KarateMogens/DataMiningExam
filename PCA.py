@@ -56,7 +56,7 @@ normalized_spotify_df.shape
 # %%
 #projecting the 12-dimensional data into 2-dimensional principal components
 from sklearn.decomposition import PCA
-pca_spotify = PCA(n_components=8)
+pca_spotify = PCA(n_components=5)
 principalComponents = pca_spotify.fit_transform(allCols)
 
 #creating datafame
