@@ -147,3 +147,8 @@ sns.histplot(data=data_df, x='year', hue='playlist_genre',
              multiple='stack', stat='proportion', cumulative=True)
 
 # %%
+sns.relplot(data_df.sample(500), x='energy',
+            y='danceability', size='track_popularity', hue='key')
+
+
+# %%
