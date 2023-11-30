@@ -37,6 +37,7 @@
 - hvordan forholde sig til at key og mode ikke rigtigt fortæller noget i sig selv uden at vide noget om akkordprogressionen
 - Hvordan er playlisterne der er med i det her dataset blevet valgt? hvor er metal og techno? er det subgenrer?
 - giver kategorierne intern mening? hvis techno hører ind under edm svarer det så ikke til at kategorisere bluegrass og dødsmetal som samme genre fordi begge bruger "rigtige" instrumenter? og hvor er klassisk musik?
-- mode er både eurocentrisk (inddeler harmonik ift vestlig musikteori der ikke nødvendigvis giver mening i andre traditioner) men også misvisende indenfor vestlig musik (hvad med kirketonarter, jazz og blues skalaer?) og så længe mode er binært giver key heller ikke mening (hvis det er en H-frygisk skala skal den så skrives som C-dur eller A-mol ?)
-- eksempel: Björks "Army of me" bruger en lokrisk skala (måske æolisk https://www.youtube.com/watch?v=Q6JBsOzOFaQ) men i hvert fald ikke F-dur! Det er ikke bare et fortolkningsspørgsmål, men klart forkert, og ikke et fringe, men meget populært nummer
+- mode er både eurocentrisk (inddeler harmonik ift vestlig musikteori der ikke nødvendigvis giver mening i andre traditioner) men også misvisende indenfor vestlig musik (hvad med kirketonarter, jazz og blues skalaer?) og så længe mode er binært giver key heller ikke mening (hvis det er en H-lokrisk skala skal den så skrives som C-dur eller A-mol ?)
+- eksempel: Björks "Army of me" bruger en C-lokrisk skala (https://www.youtube.com/watch?v=Q6JBsOzOFaQ) men i hvert fald ikke F#-dur! Det er ikke bare et fortolkningsspørgsmål, men klart forkert, og ikke et fringe, men meget populært nummer
 - måske viser regressionsmodellens dårlige performance at man har brug for bruger data for at lave en god anbefalings algoritme? de features vi har adgang til er ikke nok til at forudsige en sangs popularitet
+- måske outliers i duration?

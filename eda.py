@@ -83,6 +83,67 @@ plot_yearly_features_by_genre(data_df)
 # %%
 # bare for at bevise at 'key' og 'mode' ikke nødvendigvis er korrekte
 bjork = data_df[data_df['track_artist'] == 'Björk']
-bjork['key'].head()
+bjork.head()
+# %%
+# HUMBLE. er både kategoriseret som pop og rap
+s = data_df[data_df['track_artist'] == 'Kendrick Lamar']
+s.head()
+# s['key'].head()
+# %%
+s = data_df[data_df['track_artist'] == 'Taylor Swift']
+s.head()
+
+# %%
+# det midst dansable nummer (typisk latin regn...)
+mindance = data_df.loc[data_df['danceability'].idxmin()]
+mindance
+# %%
+# vanvittigt nummer
+maxdance = data_df.loc[data_df['danceability'].idxmax()]
+maxdance
+# %%
+# igen latin? energiske bølgelyde til at sove
+maxenergy = data_df.loc[data_df['energy'].idxmax()]
+maxenergy
+# %%
+minenergy = data_df.loc[data_df['energy'].idxmin()]
+minenergy
+# %%
+maxdur = data_df.loc[data_df['duration_ms'].idxmax()]
+maxdur
+# %%
+maxloud = data_df.loc[data_df['loudness'].idxmax()]
+maxloud
+
+# %%
+# %%
+maxpopular = data_df.loc[data_df['track_popularity'].idxmax()]
+maxpopular
+# %%
+# kan ikke finde den
+minpopular = data_df.loc[data_df['track_popularity'].idxmin()]
+minpopular
+# %%
+# tempo giver kun mening fordi de ikke kan holde tempoet
+maxlive = data_df.loc[data_df['liveness'].idxmax()]
+maxlive
+
+# %%
+minval = data_df.loc[data_df['valence'].idxmax()]
+minval
+
+# %%
+maxsp = data_df.loc[data_df['speechiness'].idxmax()]
+maxsp
+# %%
+
+plt.hist(data_df['year'])
+# %%
+sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
+
+# %%
+# ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
+sns.histplot(data=data_df, x='year', hue='playlist_genre',
+             multiple='stack', stat='proportion', cumulative=True)
 
 # %%
