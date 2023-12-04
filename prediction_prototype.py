@@ -4,18 +4,26 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from utils import get_dfs
+from utils import get_dfs, print_confusion_matrix, plot_feature_importances
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction import FeatureHasher
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, LogisticRegression
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import GridSearchCV
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error, multilabel_confusion_matrix
 from pprint import pprint
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neural_network import MLPClassifier
 
 data_df, data_ordinal_df, holdout_df = get_dfs()
 # %%
@@ -52,7 +60,8 @@ print(grid_search.best_params_)
 
 # %%
 # TRYING TO PREDICT GENRE BASED ON MUSICAL FEATURES
-X = data_ordinal_df
+# dropping 'year' since it is not a musical feature
+X = data_ordinal_df.drop('year', axis=1)
 y = data_df['playlist_genre']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -63,97 +72,68 @@ y_pred = dt_model.predict(X_test)
 # overraskende god performance
 # multilabel_confusion_matrix(y_test, y_pred)
 
-conf_matrix = confusion_matrix(y_test, y_pred)
+classification_report(y_test, y_pred)
 
-# sns.heatmap(conf_matrix, cmap='Blues')
-conf_matrix_df = pd.DataFrame(
-    conf_matrix, index=np.unique(y), columns=np.unique(y))
-
-# heatmap for confusion matrix
-# used chatGPT to make it pretty
-plt.figure(figsize=(10, 8))
-sns.heatmap(conf_matrix_df, annot=True, fmt='g', cmap='Blues', cbar=False)
-plt.xlabel('predicted')
-plt.ylabel('actual')
-plt.title('confusion matrix')
-plt.show()
+print_confusion_matrix(y_test, y_pred, y)
 # plotting the feature importance extracted from the dtree model
-feature_importances = dt_model.feature_importances_
-feature_names = X.columns
-importances = pd.DataFrame(
-    feature_importances, feature_names, columns=['importance'])
-plt.figure(figsize=(10, 8))
-importances.plot(kind='bar', legend=False)
-plt.title('feature importances')
-plt.xlabel('features')
-plt.ylabel('importance')
-plt.show()
+plot_feature_importances(dt_model, X)
 
-# K-MEANS TEST
+
+# PREDICT YEAR
+# %%
+y = data_df['year']
+
+X = data_ordinal_df.drop(['year'], axis=1)
+# Apparently very little information is needed for classifying songs based on year
+X = X[['speechiness', 'danceability']]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=42)
+
+dt_model = DecisionTreeClassifier()
+dt_model.fit(X_test, y_test)
+y_pred = dt_model.predict(X_test)
+# overraskende god performance
+# multilabel_confusion_matrix(y_test, y_pred)
+
+classification_report(y_test, y_pred)
+
+print_confusion_matrix(y_test, y_pred, y)
+# plotting the feature importance extracted from the dtree model
+plot_feature_importances(dt_model, X)
 
 # %%
-# sum of squared distances
-ssd = []
-
-for k in range(2, 15):
-    model = KMeans(n_clusters=k)
-    model.fit(X)
-    # add the models sum of squared distances (inertia_) to ssd list to be able to do elbow plot
-    ssd.append(model.inertia_)
-
-# plot ssd
-plt.plot(range(2, 15), ssd, 'o--')
-plt.xlabel("k value")
-plt.ylabel("sum of squared distances")
-# %%
-# data_df['playlist_genre'].unique()
-# k=6 virker som et meget godt bud, især siden det er det antal genre der allerede er defineret
-model = KMeans(n_clusters=6)
-data_df['cluster'] = model.fit_predict(X)
 data_df.head()
-
-sns.countplot(data_df, x=data_df['cluster'])
 # %%
-sns.countplot(data_df, x=data_df['playlist_genre'])
-# %%
-sns.countplot(data_df, x='playlist_genre', hue='cluster')
-# %%
-cross_tab = pd.crosstab(data_df['playlist_genre'], data_df['cluster'])
-sns.heatmap(cross_tab, cmap='Blues')
-# %%
-cross_tab
-# %%
-# EDA
-# find ud af hvad der kendetegner hver genre og cluster
-feature_stats = {}
-for feature in X.keys():
-    genre_stats = {}
-    cluster_stats = {}
-    for genre in data_df['playlist_genre'].unique():
-        genre_stats[genre] = data_df[feature][data_df['playlist_genre']
-                                              == genre].mean()
-
-    for cluster in data_df['cluster'].unique():
-        cluster_stats[cluster] = data_df[feature][data_df['cluster']
-                                                  == cluster].mean()
-    feature_stats[f'{feature}_genre'] = genre_stats
-    feature_stats[f'{feature}_cluster'] = cluster_stats
+# PREDICTING POPULARITY BASED ON track_name
 
 # %%
-for feature_key, stats in feature_stats.items():
-    if 'genre' in feature_key:
-        plt.bar(stats.keys(), stats.values())
-        plt.title(f'mean values for {feature_key}')
-        plt.xlabel('genre')
-        plt.ylabel(feature_key)
-        plt.show()
+data_df['text'] = data_df['track_name'] + ' ' + data_df['track_album_name']
+X = data_df['text']
+y = data_df['playlist_genre']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=42)
 
-# %%
-for feature_key, stats in feature_stats.items():
-    if 'cluster' in feature_key:
-        plt.bar(stats.keys(), stats.values())
-        plt.title(f'mean values for {feature_key}')
-        plt.xlabel('cluster')
-        plt.ylabel(feature_key)
-        plt.show()
+
+pipe = Pipeline([
+    # ('count', CountVectorizer()),
+
+    ('tfidf', TfidfVectorizer(ngram_range=(1, 6))),
+    ('naive_bayes', MultinomialNB()),
+    # ('svc', SVC()),
+    # ('lr', LogisticRegression()),
+    # ('dt', DecisionTreeClassifier()),
+    # ('rf', RandomForestClassifier()),
+    # ('knn', KNeighborsClassifier(n_neighbors=300)),
+    # ('gb', GradientBoostingClassifier()),
+    # ('mlp', MLPClassifier())
+])
+
+pipe.fit(X_train, y_train)
+
+
+ypred = pipe.predict(X_test)
+print(classification_report(y_test, ypred))
+# ConfusionMatrixDisplay.from_estimator(pipe, X_test, y_test)
+print_confusion_matrix(y_test, ypred, y)
 # %%

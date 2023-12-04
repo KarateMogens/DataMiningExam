@@ -4,11 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 
 def get_dfs():
     df = pd.read_csv("spotify_songs.csv")
     df = date_to_year(df)
+    df = df.dropna()
     # create holdout_df to save for final testing of models
     data_df, holdout_df = train_test_split(df, random_state=42, test_size=0.2)
     # Ordinal datapoints: 'track_popularity', 'track_album_release_date', 'danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_ms'
@@ -29,3 +31,37 @@ def date_to_year(df):
     df['year'] = df['track_album_release_date'].dt.year
     df = df.drop('track_album_release_date', axis=1)
     return df
+
+
+def print_confusion_matrix(y_test, ypred, y):
+    conf_matrix = confusion_matrix(y_test, ypred)
+
+    print(np.unique(y).shape)
+
+    # sns.heatmap(conf_matrix, cmap='Blues')
+    conf_matrix_df = pd.DataFrame(
+        conf_matrix, index=np.unique(y), columns=np.unique(y))
+
+    # heatmap for confusion matrix
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(conf_matrix_df, annot=True, fmt='g',
+                cmap='coolwarm', cbar=False)
+    plt.xlabel('predicted')
+    plt.ylabel('actual')
+    plt.title('confusion matrix')
+    plt.show()
+
+
+def plot_feature_importances(model, X):
+    feature_importances = model.feature_importances_
+    feature_names = X.columns
+    importances = pd.DataFrame(
+        feature_importances, feature_names, columns=['importance'])
+    plt.figure(figsize=(10, 8))
+    importances.plot(kind='bar', legend=False)
+    plt.title('feature importances')
+    plt.xlabel('features')
+    plt.ylabel('importance')
+    plt.show()
+
+# %%
