@@ -102,7 +102,7 @@ classification_metrics(X, y, model, y_test, y_pred)
 
 
 # %%
-# PREDICTING POPULARITY BASED ON track_name AND track_album_name
+# PREDICTING PlAYLIST GENRE BASED ON track_name AND track_album_name
 
 
 data_df['text'] = data_df['track_name'] + ' ' + data_df['track_album_name']
@@ -180,4 +180,30 @@ y_pred = model.predict(X_test)
 # multilabel_confusion_matrix(y_test, y_pred)
 classification_metrics(X, y, model, y_test, y_pred)
 
+# %%
+# PREDICTING SUBGENRE BY COMBINED TEXT AND MUSICAL FEATURES
+X = data_ordinal_df
+X['text'] = data_df['track_name'] + ' ' + data_df['track_album_name']
+y = data_df['playlist_subgenre']
+# preprocessing steps for different columns
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('text', TfidfVectorizer(ngram_range=(1, 6)), 'text'),
+        # using numeric columns only
+        ('scaler', StandardScaler(), X.select_dtypes(include='number').columns)
+    ]
+)
+pipe = Pipeline([
+    ('preprocessor', preprocessor),
+    ('lr', LogisticRegression())
+])
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=42)
+
+
+pipe.fit(X_train, y_train)
+ypred = pipe.predict(X_test)
+print(classification_report(y_test, ypred))
+# ConfusionMatrixDisplay.from_estimator(pipe, X_test, y_test)
+print_confusion_matrix(y_test, ypred, y)
 # %%
