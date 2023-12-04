@@ -33,6 +33,11 @@ def date_to_year(df):
     return df
 
 
+def year_to_decade(df):
+    df['decade'] = (df['year'] // 10) * 10
+    return df.drop('year', axis=1)
+
+
 def print_confusion_matrix(y_test, ypred, y):
     conf_matrix = confusion_matrix(y_test, ypred)
 

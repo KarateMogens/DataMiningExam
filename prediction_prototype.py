@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from utils import get_dfs, print_confusion_matrix, plot_feature_importances
+from utils import get_dfs, print_confusion_matrix, plot_feature_importances, year_to_decade
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -79,22 +79,21 @@ print_confusion_matrix(y_test, y_pred, y)
 plot_feature_importances(dt_model, X)
 
 
-# PREDICT YEAR
+# PREDICT DECADE
 # %%
-y = data_df['year']
+df = year_to_decade(data_df)
+y = df['decade']
 
 X = data_ordinal_df.drop(['year'], axis=1)
 # Apparently very little information is needed for classifying songs based on year
-X = X[['speechiness', 'danceability']]
+# X = X[['speechiness', 'danceability']]
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
 
 dt_model = DecisionTreeClassifier()
-dt_model.fit(X_test, y_test)
+dt_model.fit(X_train, y_train)
 y_pred = dt_model.predict(X_test)
-# overraskende god performance
-# multilabel_confusion_matrix(y_test, y_pred)
 
 classification_report(y_test, y_pred)
 
@@ -102,8 +101,7 @@ print_confusion_matrix(y_test, y_pred, y)
 # plotting the feature importance extracted from the dtree model
 plot_feature_importances(dt_model, X)
 
-# %%
-data_df.head()
+
 # %%
 # PREDICTING POPULARITY BASED ON track_name
 
