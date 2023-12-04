@@ -195,7 +195,8 @@ preprocessor = ColumnTransformer(
 )
 pipe = Pipeline([
     ('preprocessor', preprocessor),
-    ('lr', LogisticRegression())
+    # ('poly_features', PolynomialFeatures()),
+    ('regression', LogisticRegression())
 ])
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -206,4 +207,20 @@ ypred = pipe.predict(X_test)
 print(classification_report(y_test, ypred))
 # ConfusionMatrixDisplay.from_estimator(pipe, X_test, y_test)
 print_confusion_matrix(y_test, ypred, y)
+# %%
+param_grid = {
+    'poly_features__degree': [1, 2, 3,],
+    # 'regression__C': [0.1, 0.5, 1, 10,]
+}
+pipe = Pipeline([
+    ('preprocessor', preprocessor),
+    ('poly_features', PolynomialFeatures()),
+    ('regression', LogisticRegression())
+])
+model = GridSearchCV(pipe, param_grid, scoring='f1')
+model.fit(X_train, y_train)
+ypred = model.predict(X_test)
+classification_metrics(X, y, model, y_test, y_pred)
+
+
 # %%

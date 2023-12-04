@@ -41,9 +41,6 @@ def year_to_decade(df):
 def print_confusion_matrix(y_test, ypred, y):
     conf_matrix = confusion_matrix(y_test, ypred)
 
-    print(np.unique(y).shape)
-
-    # sns.heatmap(conf_matrix, cmap='Blues')
     conf_matrix_df = pd.DataFrame(
         conf_matrix, index=np.unique(y), columns=np.unique(y))
 
