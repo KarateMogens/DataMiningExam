@@ -12,7 +12,7 @@ def get_dfs():
     # Remove duplicate tracks (saving first occurence of each track):
     # All songs: 32833
     # Unique songs: 28356
-    unique_df = df['track_id'].unique()
+    unique_df = df.drop_duplicates(subset="track_id", keep="first")
 
     # create holdout_df to save for final testing of models
     data_df, holdout_df = train_test_split(unique_df, random_state=42, test_size=0.2)
@@ -25,6 +25,4 @@ def get_dfs():
 
     return data_df, data_ordinal_df, holdout_df
 
-# %%
-get_dfs()
-# %%
+
