@@ -63,6 +63,24 @@ for feature in data_ordinal_df.columns:
 # %%
 plt.hist(data_df['year'], bins=62)
 # %%
+sns.barplot(data_df, x='playlist_genre', y='track_popularity')
+# %%
+sns.barplot(data_df, x='playlist_subgenre', y='track_popularity')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+
+# %%
+for feature in data_ordinal_df.keys():
+    sns.barplot(data_df, x='playlist_subgenre', y=feature)
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
+# %%
+for feature in data_ordinal_df.keys():
+    sns.barplot(data_df, x='playlist_genre', y=feature)
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
+
+# %%
 plot_features_by_year(data_df)
 # %%
 # MÅSKE ER DE NÆSTE TO LIDT OVERKILL

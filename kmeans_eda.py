@@ -31,6 +31,8 @@ data_df.head()
 
 sns.countplot(data_df, x=data_df['cluster'])
 # %%
+sns.barplot(data_df, x='cluster', y='track_popularity')
+# %%
 sns.countplot(data_df, x=data_df['playlist_genre'])
 # %%
 sns.countplot(data=data_df, x='playlist_subgenre')
@@ -39,6 +41,9 @@ plt.show()
 # %%
 
 sns.countplot(data_df, x='playlist_genre', hue='cluster')
+# %%
+sns.countplot(data_df, x='cluster', hue='playlist_genre')
+
 # %%
 cross_tab = pd.crosstab(data_df['playlist_genre'], data_df['cluster'])
 sns.heatmap(cross_tab, cmap='Blues')
