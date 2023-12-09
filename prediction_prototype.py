@@ -37,7 +37,7 @@ def classification_metrics(X, y, model, y_test, y_pred):
 
 # %%
 # TRYING TO PREDICT TRACK POPULARITY BASED ON MUSICAL FEATURES
-X = data_ordinal_df
+X = data_ordinal_df.drop('track_popularity', axis=1)
 y = data_df['track_popularity']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -70,7 +70,7 @@ print(grid_search.best_params_)
 # %%
 # TRYING TO PREDICT GENRE BASED ON MUSICAL FEATURES
 # dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
-X = data_ordinal_df.drop(['year', 'key', 'mode'], axis=1)
+X = data_ordinal_df.drop(['key', 'mode'], axis=1)
 y = data_df['playlist_genre']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -87,7 +87,7 @@ classification_metrics(X, y, model, y_test, y_pred)
 df = year_to_decade(data_df)
 y = df['decade']
 
-X = data_ordinal_df.drop(['year'], axis=1)
+
 # Apparently very little information is needed for classifying songs based on year
 # X = X[['speechiness', 'danceability']]
 
@@ -166,7 +166,7 @@ print_confusion_matrix(y_test, ypred, y)
 
 
 # PREDICTING SUBGENRE BASED ON MUSICAL FEATURES
-X = data_ordinal_df.drop(['year', 'key', 'mode'], axis=1)
+X = data_ordinal_df.drop(['key', 'mode'], axis=1)
 y = data_df['playlist_subgenre']
 X = X.drop('text', axis=1)
 
@@ -208,19 +208,19 @@ print(classification_report(y_test, ypred))
 # ConfusionMatrixDisplay.from_estimator(pipe, X_test, y_test)
 print_confusion_matrix(y_test, ypred, y)
 # %%
-param_grid = {
-    'poly_features__degree': [1, 2, 3,],
-    # 'regression__C': [0.1, 0.5, 1, 10,]
-}
-pipe = Pipeline([
-    ('preprocessor', preprocessor),
-    ('poly_features', PolynomialFeatures()),
-    ('regression', LogisticRegression())
-])
-model = GridSearchCV(pipe, param_grid, scoring='f1')
-model.fit(X_train, y_train)
-ypred = model.predict(X_test)
-classification_metrics(X, y, model, y_test, y_pred)
+# param_grid = {
+#     'poly_features__degree': [1, 2, 3,],
+#     # 'regression__C': [0.1, 0.5, 1, 10,]
+# }
+# pipe = Pipeline([
+#     ('preprocessor', preprocessor),
+#     ('poly_features', PolynomialFeatures()),
+#     ('regression', LogisticRegression())
+# ])
+# model = GridSearchCV(pipe, param_grid, scoring='f1')
+# model.fit(X_train, y_train)
+# ypred = model.predict(X_test)
+# classification_metrics(X, y, model, y_test, y_pred)
 
 
 # %%

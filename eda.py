@@ -110,23 +110,23 @@ bjork.head()
 # HUMBLE. er både kategoriseret som pop og rap
 s = data_df[data_df['track_artist'] == 'Kendrick Lamar']
 s.head()
-# s['key'].head()
-# %%
-s = data_df[data_df['track_artist'] == 'Taylor Swift']
-s.head()
+# # s['key'].head()
+# # %%
+# s = data_df[data_df['track_artist'] == 'Taylor Swift']
+# s.head()
 
 
-# %%
-sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
+# # %%
+# sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
 
-# %%
-# ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
-sns.histplot(data=data_df, x='year', hue='playlist_genre',
-             multiple='stack', stat='proportion', cumulative=True)
+# # %%
+# # ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
+# sns.histplot(data=data_df, x='year', hue='playlist_genre',
+#              multiple='stack', stat='proportion', cumulative=True)
 
-# %%
-sns.relplot(data_df.sample(500), x='energy',
-            y='danceability', size='track_popularity', hue='key')
+# # %%
+# sns.relplot(data_df.sample(500), x='energy',
+#             y='danceability', size='track_popularity', hue='key')
 
 
 # %%
