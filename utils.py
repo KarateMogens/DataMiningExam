@@ -11,14 +11,19 @@ def get_dfs():
     df = pd.read_csv("spotify_songs.csv")
     df = date_to_year(df)
     df = df.dropna()
+   
+    # Remove duplicate tracks (saving first occurence of each track):
+    # All songs: 32833
+    # Unique songs: 28356
+    unique_df = df.drop_duplicates(subset="track_id", keep="first")
+
     # create holdout_df to save for final testing of models
-    data_df, holdout_df = train_test_split(df, random_state=42, test_size=0.2)
+    data_df, holdout_df = train_test_split(
+        unique_df, random_state=42, test_size=0.2)
     # Ordinal datapoints: 'track_popularity', 'track_album_release_date', 'danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_ms'
 
-    nominal_columns = ['track_popularity', 'track_name', 'track_id', 'track_artist', 'playlist_subgenre', 'track_album_id',
-                       'playlist_genre', 'track_album_name', 'playlist_name', 'playlist_id', 'playlist_genre']
-    ordinal_columns = [x for x in list(
-        data_df.keys()) if x not in nominal_columns]
+    nominal_columns = ['track_name', 'track_id', 'track_artist', 'playlist_subgenre', 'track_album_id',
+                       'playlist_genre', 'track_album_name', 'playlist_name', 'playlist_id', 'playlist_genre', 'track_album_release_date']
 
     data_ordinal_df = data_df.drop(nominal_columns, axis=1)
 
