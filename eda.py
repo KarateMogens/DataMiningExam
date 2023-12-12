@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from utils import get_dfs
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 # define functions for plotting features by year
 
@@ -70,7 +71,13 @@ for feature in data_ordinal_df.columns:
     sns.boxplot(x='playlist_genre', y=feature, data=data_df)
     plt.show()
 
-
+# plot scaled features
+scaler = StandardScaler()
+df = scaler.fit_transform(data_ordinal_df)
+for feature in df.columns:
+    plt.figure(figsize=(12, 8))
+    sns.boxplot(x='playlist_genre', y=feature, data=data_df)
+    plt.show()
 # %%
 plt.hist(data_df['year'], bins=62)
 # %%
