@@ -70,11 +70,14 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 
+# read data again to start from scratch in experiment 2
+data = pd.read_csv("spotify_songs.csv")
+
 # features to combine
 columns_float = ["energy", "valence", "danceability", "loudness", "tempo"]
 
 # defining new df with the chosen features
-df_float1 = data.loc[:, columns_float]
+df_float = data.loc[:, columns_float]
 
 # defining what my features are
 features = columns_float
@@ -91,25 +94,27 @@ best_silhouette_score = -1  # Initialize with a low value
 
 # standardize the data
 scaler = StandardScaler()
-scaled_data = scaler.fit_transform(df_float1)
+scaled_data = scaler.fit_transform(df_float)
 
 # specify the range of clusters to consider
 cluster_range = range(2, 10)
+
+#%% OBS: TAGER LANG TID! iterate through the combinations (grid search)
 
 # iterate over all possible feature combinations
 for feature_combination in all_possible_feature_combinations:
     print(f"\nEvaluating Feature Combination: {feature_combination}")
     
     # Subsetting the DataFrame with selected features
-    subset_data = df_float1[list(feature_combination)].values
+    subset_data = df_float[list(feature_combination)].values
 
     # Iterate over different numbers of clusters
     for num_clusters in cluster_range:
         print(f"\n  Evaluating Number of Clusters: {num_clusters}")
 
         # Apply K-Means clustering
-        kmeans = KMeans(n_clusters=num_clusters, random_state=42)
-        labels = kmeans.fit_predict(subset_data)
+        kmeansModel = KMeans(n_clusters=num_clusters, random_state=42)
+        labels = kmeansModel.fit_predict(subset_data)
 
         # Evaluate clustering quality using silhouette score
         silhouette_avg = silhouette_score(subset_data, labels)
@@ -125,10 +130,42 @@ print("\nBest Feature Combination:", best_features)
 print("Best Number of Clusters:", best_num_clusters)
 print("Best Silhouette Score:", best_silhouette_score)
 
-# Second experiment conclusion: T
-# he best feature combination is all four features with a number of three clusters
-# It gives a score at 0.62
+# Second experiment conclusion:
+# The best feature combination is the four features 'energy', 'valence', 'danceability', and 'tempo' 
+# with a number of three clusters. It gives a score at 0.62.
 
-# TODO: Apply labels to the clusters and build the recommender
+# %% make model based on best findings
 
-# %%
+# read data and build df again to start from scratch
+data = pd.read_csv("spotify_songs.csv")
+columns = ["energy", "valence", "danceability", "tempo"]
+df_kmeans = data.loc[:, columns]
+clusters = 3
+
+# standardize the data
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(df_kmeans)
+
+# apply K-Means
+kmeansModel = KMeans(n_clusters=clusters, random_state=42)
+df_kmeans['cluster'] = kmeansModel.fit_predict(scaled_data)
+
+#%% # plotting the resulting clusters in 4d
+
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(df_kmeans['energy'], df_kmeans['valence'], df_kmeans['danceability'], c=kmeansModel.labels_, cmap='viridis', s=50)
+ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[:, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
+ax.set_xlabel('energy')
+ax.set_ylabel('valence')
+ax.set_zlabel('danceability')
+plt.show()
+
+# visualisation conclusion:
+# by visualising the clusters as well as considering the silhouette score, the clustering
+# is not really great. there is not distinct seperation between the data points,
+# and thereby not really any distinct clusters.
+
+#%%
+# TODO: 
+# Apply labels to the clusters and build the recommender

@@ -20,3 +20,5 @@ def get_dfs():
     data_ordinal_df = data_df.drop(nominal_columns, axis=1)
 
     return data_df, data_ordinal_df, holdout_df
+
+# %%
