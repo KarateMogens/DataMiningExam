@@ -24,7 +24,7 @@ plt.xlabel("k value")
 plt.ylabel("sum of squared distances")
 # %%
 # data_df['playlist_genre'].unique()
-# k=6 virker som et meget godt bud, især siden det er det antal genre der allerede er defineret
+# k=6 virker som et meget godt bud, især siden det er det antal genrer der allerede er defineret
 model = KMeans(n_clusters=6)
 data_df['cluster'] = model.fit_predict(X)
 data_df.head()
@@ -40,10 +40,13 @@ plt.xticks(rotation=45, ha='right')
 plt.show()
 # %%
 
-sns.countplot(data_df, x='playlist_genre', hue='cluster')
+ax = sns.countplot(data_df, x='playlist_genre', hue='cluster')
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.show()
 # %%
-sns.countplot(data_df, x='cluster', hue='playlist_genre')
-
+ax = sns.countplot(data_df, x='cluster', hue='playlist_genre')
+ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.show()
 # %%
 cross_tab = pd.crosstab(data_df['playlist_genre'], data_df['cluster'])
 sns.heatmap(cross_tab, cmap='Blues')

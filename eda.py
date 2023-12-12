@@ -31,6 +31,17 @@ def plot_features_by_year_compare_genres(df):
         plt.show()
 
 
+def print_min_max_features():
+    for feature in data_ordinal_df.keys():
+        feature_max = data_df.loc[data_df[feature].idxmax()]
+        feature_min = data_df.loc[data_df[feature].idxmin()]
+        print(f"\n############{feature}#########\n ")
+        print(f"min {feature}: \n{feature_min}")
+        print(f"\nfeature: {feature}\ntrack: {feature_max['track_name']}\n")
+        print(f"max {feature}: \n{feature_max}")
+        print(f"\nfeature: {feature}\ntrack: {feature_min['track_name']} \n ")
+
+
 data_df, data_ordinal_df, holdout_df = get_dfs()
 data_df.describe()
 
@@ -49,8 +60,8 @@ correlation_matrix = data_ordinal_df.corr()
 
 # To-do: Plot as confusion-matrix with gradient from invisible to green (0 to 1)
 correlation_matrix
-sns.heatmap(correlation_matrix, cmap='Blues')
-
+sns.heatmap(correlation_matrix, cmap='coolwarm', fmt='.1f')
+plt.show()
 
 # %%
 # plotter alle musical features ift genre
@@ -91,14 +102,7 @@ plot_yearly_features_by_genre(data_df)
 
 # INVESTIGATING MOST EXTREME TRACKS FOR EACH MUSICAL FEATURE
 # %%
-for feature in data_ordinal_df.keys():
-    feature_max = data_df.loc[data_df[feature].idxmax()]
-    feature_min = data_df.loc[data_df[feature].idxmin()]
-    print(f"\n############{feature}#########\n ")
-    print(f"min {feature}: \n{feature_min}")
-    print(f"\nfeature: {feature}\ntrack: {feature_max['track_name']}\n")
-    print(f"max {feature}: \n{feature_max}")
-    print(f"\nfeature: {feature}\ntrack: {feature_min['track_name']} \n ")
+print_min_max_features()
 
 
 # EXTRA JUST FOR
