@@ -169,3 +169,12 @@ plt.show()
 #%%
 # TODO: 
 # Apply labels to the clusters and build the recommender
+# Experiment with feature engineering such as:
+    # Create bins for popularity and tempo
+        # low-medium-high
+
+    # Combine features such as energy * loudness
+        # High score indicates high impact
+
+    # Combine features such as valence / energy
+        # High score indicates that the more valence, the more energy
