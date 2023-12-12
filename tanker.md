@@ -41,3 +41,11 @@
 - eksempel: Björks "Army of me" bruger en C-lokrisk skala (https://www.youtube.com/watch?v=Q6JBsOzOFaQ) men i hvert fald ikke F#-dur! Det er ikke bare et fortolkningsspørgsmål, men klart forkert, og ikke et fringe, men meget populært nummer
 - måske viser regressionsmodellens dårlige performance at man har brug for bruger data for at lave en god anbefalings algoritme? de features vi har adgang til er ikke nok til at forudsige en sangs popularitet
 - måske outliers i duration?
+
+##### nyt
+
+- ift at lave recommendations skal vi være opmærksomme på at vi jo ikke har bruger data og der for kun kan lave conten based
+  recommendations, ikke collaborative filtering
+- også værd at overveje hvordan vi vil vægte exploration/exploitation?
+- husk at det kun er populær musik vi undersøger
+- kun helt basale features som loudness, men ikke structure

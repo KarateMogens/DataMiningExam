@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from utils import get_dfs
+from sklearn.cluster import KMeans
 
 # define functions for plotting features by year
 
@@ -50,11 +51,6 @@ correlation_matrix = data_ordinal_df.corr()
 correlation_matrix
 sns.heatmap(correlation_matrix, cmap='Blues')
 
-# # %%
-# rock = data_df[data_df['playlist_genre'] == 'rock']
-# # %%
-# sns.pairplot(rock)
-
 
 # %%
 # plotter alle musical features ift genre
@@ -65,13 +61,25 @@ for feature in data_ordinal_df.columns:
 
 
 # %%
-
-data_df.columns
+plt.hist(data_df['year'], bins=62)
 # %%
-# create 'year' columns to be able to plot feature by year
-data_df['track_album_release_date'] = pd.to_datetime(
-    data_df['track_album_release_date'], format='ISO8601')
-data_df['year'] = data_df['track_album_release_date'].dt.year
+sns.barplot(data_df, x='playlist_genre', y='track_popularity')
+# %%
+sns.barplot(data_df, x='playlist_subgenre', y='track_popularity')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+
+# %%
+for feature in data_ordinal_df.keys():
+    sns.barplot(data_df, x='playlist_subgenre', y=feature)
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
+# %%
+for feature in data_ordinal_df.keys():
+    sns.barplot(data_df, x='playlist_genre', y=feature)
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
+
 # %%
 plot_features_by_year(data_df)
 # %%
@@ -80,6 +88,20 @@ plot_features_by_year_compare_genres(data_df)
 # %%
 plot_yearly_features_by_genre(data_df)
 
+
+# INVESTIGATING MOST EXTREME TRACKS FOR EACH MUSICAL FEATURE
+# %%
+for feature in data_ordinal_df.keys():
+    feature_max = data_df.loc[data_df[feature].idxmax()]
+    feature_min = data_df.loc[data_df[feature].idxmin()]
+    print(f"\n############{feature}#########\n ")
+    print(f"min {feature}: \n{feature_min}")
+    print(f"\nfeature: {feature}\ntrack: {feature_max['track_name']}\n")
+    print(f"max {feature}: \n{feature_max}")
+    print(f"\nfeature: {feature}\ntrack: {feature_min['track_name']} \n ")
+
+
+# EXTRA JUST FOR
 # %%
 # bare for at bevise at 'key' og 'mode' ikke nødvendigvis er korrekte
 bjork = data_df[data_df['track_artist'] == 'Björk']
@@ -88,62 +110,23 @@ bjork.head()
 # HUMBLE. er både kategoriseret som pop og rap
 s = data_df[data_df['track_artist'] == 'Kendrick Lamar']
 s.head()
-# s['key'].head()
-# %%
-s = data_df[data_df['track_artist'] == 'Taylor Swift']
-s.head()
+# # s['key'].head()
+# # %%
+# s = data_df[data_df['track_artist'] == 'Taylor Swift']
+# s.head()
 
-# %%
-# det midst dansable nummer (typisk latin regn...)
-mindance = data_df.loc[data_df['danceability'].idxmin()]
-mindance
-# %%
-# vanvittigt nummer
-maxdance = data_df.loc[data_df['danceability'].idxmax()]
-maxdance
-# %%
-# igen latin? energiske bølgelyde til at sove
-maxenergy = data_df.loc[data_df['energy'].idxmax()]
-maxenergy
-# %%
-minenergy = data_df.loc[data_df['energy'].idxmin()]
-minenergy
-# %%
-maxdur = data_df.loc[data_df['duration_ms'].idxmax()]
-maxdur
-# %%
-maxloud = data_df.loc[data_df['loudness'].idxmax()]
-maxloud
 
-# %%
-# %%
-maxpopular = data_df.loc[data_df['track_popularity'].idxmax()]
-maxpopular
-# %%
-# kan ikke finde den
-minpopular = data_df.loc[data_df['track_popularity'].idxmin()]
-minpopular
-# %%
-# tempo giver kun mening fordi de ikke kan holde tempoet
-maxlive = data_df.loc[data_df['liveness'].idxmax()]
-maxlive
+# # %%
+# sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
 
-# %%
-minval = data_df.loc[data_df['valence'].idxmax()]
-minval
+# # %%
+# # ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
+# sns.histplot(data=data_df, x='year', hue='playlist_genre',
+#              multiple='stack', stat='proportion', cumulative=True)
 
-# %%
-maxsp = data_df.loc[data_df['speechiness'].idxmax()]
-maxsp
-# %%
+# # %%
+# sns.relplot(data_df.sample(500), x='energy',
+#             y='danceability', size='track_popularity', hue='key')
 
-plt.hist(data_df['year'])
-# %%
-sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
-
-# %%
-# ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
-sns.histplot(data=data_df, x='year', hue='playlist_genre',
-             multiple='stack', stat='proportion', cumulative=True)
 
 # %%

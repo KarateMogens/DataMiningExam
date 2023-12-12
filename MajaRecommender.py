@@ -170,7 +170,7 @@ plt.show()
 # TODO: 
 # Apply labels to the clusters and build the recommender
 # Experiment with feature engineering such as:
-    # Create bins for popularity and tempo
+    # Create bins for popularity and tempo/Discreatization
         # low-medium-high
 
     # Combine features such as energy * loudness
