@@ -31,7 +31,7 @@ def get_dfs():
 
 def date_to_year(df):
     df['track_album_release_date'] = pd.to_datetime(
-        df['track_album_release_date'], format='ISO8601')
+        df['track_album_release_date'])
     df['year'] = df['track_album_release_date'].dt.year
     df = df.drop('track_album_release_date', axis=1)
     return df
