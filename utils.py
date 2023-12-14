@@ -24,16 +24,22 @@ def get_dfs():
     nominal_columns = ['track_name', 'track_id', 'track_artist', 'playlist_subgenre', 'track_album_id',
                        'playlist_genre', 'track_album_name', 'playlist_name', 'playlist_id', 'playlist_genre', 'year']
 
-    data_ordinal_df = data_df.drop(nominal_columns, axis=1)
+    data_ordinal_df = data_df.drop(nominal_columns, axis=1).copy()
 
     return data_df, data_ordinal_df, holdout_df
 
 
 def date_to_year(df):
-    df['track_album_release_date'] = pd.to_datetime(
-        df['track_album_release_date'], format='ISO8601')
+    # Using try except for reading datatime because we had an issue of the code not working on some computers despite using the same anaconda environment.
+    try:
+        df['track_album_release_date'] = pd.to_datetime(
+            df['track_album_release_date'])
+    except:
+        df['track_album_release_date'] = pd.to_datetime(
+            df['track_album_release_date'], format='mixed')
+
     df['year'] = df['track_album_release_date'].dt.year
-    df = df.drop('track_album_release_date', axis=1)
+    df = df.drop('track_album_release_date', axis=1).copy()
     return df
 
 
