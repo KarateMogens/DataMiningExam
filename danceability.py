@@ -137,33 +137,3 @@ print("Best Params: ", gridSearch.best_params_)
 print("Best R2: ", r2)
 print("Best MSE: ", mse)
 print("Best MAE:", mae)
-
-
-#%%
-
-########################################################################################
-########################################################################################
-
-########################    SUPPORT VECTOR REGRESSION  #####################################
-
-########################################################################################
-########################################################################################
-svr = SVR(kernel='rbf', C=1.0, epsilon=0.1)  # Radial Basis Function (RBF) kernel
-
-pipeline = Pipeline(steps=[
-    ('preprocessor', preproc),
-    ('svr', svr)
-])
-
-pipeline.fit(X_train, y_train)
-
-y_pred = pipeline.predict(X_test)
-
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
-mae = mean_absolute_error(y_test, y_pred)
-
-print("Mean Squared Error: " + str(mse))
-print("R2: " + str(r2))
-print("Mean Absolute Error: " + str(mae))
-
