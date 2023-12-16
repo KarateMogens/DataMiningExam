@@ -33,22 +33,33 @@ data
 # defining moods and their ranges
 # i decided to specify a significant/unique range to each item/mood
 
-#%% # mood dict
-moods = {
+#%% # mood dicts
+
+# in this dict i tried to assign distinct values to each attribute/mood. however, ~19000 tuples were assigned with undefined mood
+distinct_moods = {
     'energy boost': {'valence': (0.9, 1.0), 'energy': (0.9, 1.0)},
     'i am happy': {'valence': (0.6, 0.8), 'energy': (0.6, 0.8)},
     'just give me a loving background soundscape': {'valence': (0.5, 0.5), 'energy': (0.5, 0.5)},
     'i am sad and a bit depressed': {'valence': (0.0, 0.4), 'energy': (0.0, 0.4)}
 }
 
+# with this mood dict i tried to overlap some ranges. however, this will lead to low distinction between clusters.
+# it resulted in ~15500 tuples assigned to undefined mood
+overlapping_moods = {
+    'energy boost': {'valence': (0.8, 1.0), 'energy': (0.8, 1.0)},
+    'i am happy': {'valence': (0.5, 0.8), 'energy': (0.5, 0.8)},
+    'just give me a loving background soundscape': {'valence': (0.3, 0.5), 'energy': (0.3, 0.5)},
+    'i am sad and a bit depressed': {'valence': (0.0, 0.3), 'energy': (0.0, 0.3)}
+}
+
 # %% # defining a function that assigns moods as labels defined by a specific range
 def assign_mood(row):
-    for mood, ranges in moods.items():
+    for mood, ranges in overlapping_moods.items():
         if all(ranges[feature][0] <= row[feature] <= ranges[feature][1] for feature in ['valence', 'energy']):
             print(f"Assigned '{mood}' to row {row.name}")
             return mood
-    print(f"Assigned 'Other' to row {row.name}: valence={row['valence']}, energy={row['energy']}")
-    return 'Other'
+    print(f"Assigned 'undefined mood' to row {row.name}: valence={row['valence']}, energy={row['energy']}")
+    return 'undefined mood'
 
 # %% # appending the new column with the moods
 data['mood_label'] = data.apply(assign_mood, axis=1)
@@ -58,7 +69,7 @@ data['mood_label'] = data.apply(assign_mood, axis=1)
 data['mood_label'].value_counts()
 
 # First experiment conclusion:
-# Defining clusters myself didn't work
+# Defining clusters myself didn't work since too many tuples falls outside of the range of moods i defined
 
 # %%
 
@@ -146,6 +157,21 @@ clusters = 3
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(df_kmeans)
 
+#%%
+from sklearn.preprocessing import MinMaxScaler
+minmax = MinMaxScaler()
+minmaxscaled = minmax.fit_transform(df_kmeans)
+
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(df_kmeans['energy'], df_kmeans['valence'], df_kmeans['danceability'], c=kmeansModel.labels_, cmap='viridis', s=50)
+ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[:, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
+ax.set_xlabel('energy')
+ax.set_ylabel('valence')
+ax.set_zlabel('danceability')
+plt.show()
+
+
 # apply K-Means
 kmeansModel = KMeans(n_clusters=clusters, random_state=42)
 df_kmeans['cluster'] = kmeansModel.fit_predict(scaled_data)
@@ -170,7 +196,7 @@ plt.show()
 # TODO: 
 # Apply labels to the clusters and build the recommender
 # Experiment with feature engineering such as:
-    # Create bins for popularity and tempo/Discreatization
+    # Create bins/Discreatization for popularity and tempo
         # low-medium-high
 
     # Combine features such as energy * loudness
@@ -178,3 +204,4 @@ plt.show()
 
     # Combine features such as valence / energy
         # High score indicates that the more valence, the more energy
+# %%
