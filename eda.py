@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 def plot_features_by_year(df):
-    for feature in data_ordinal_df.columns:
+    for feature in numerical_df.columns:
         plt.figure(figsize=(12, 8))
         sns.lineplot(data=df, x='year', y=feature)
         plt.title(f"{feature} over years")
@@ -25,7 +25,7 @@ def plot_yearly_features_by_genre(df):
 
 
 def plot_features_by_year_compare_genres(df):
-    for feature in data_ordinal_df.columns:
+    for feature in numerical_df.columns:
         plt.figure(figsize=(12, 8))
         sns.lineplot(data=data_df, x='year', y=feature, hue='playlist_genre')
         plt.title(f"{feature} over years")
@@ -33,7 +33,7 @@ def plot_features_by_year_compare_genres(df):
 
 
 def print_min_max_features():
-    for feature in data_ordinal_df.keys():
+    for feature in numerical_df.keys():
         feature_max = data_df.loc[data_df[feature].idxmax()]
         feature_min = data_df.loc[data_df[feature].idxmin()]
         print(f"\n############{feature}#########\n ")
@@ -43,7 +43,7 @@ def print_min_max_features():
         print(f"\nfeature: {feature}\ntrack: {feature_min['track_name']} \n ")
 
 
-data_df, data_ordinal_df, holdout_df = get_dfs()
+data_df, numerical_df, holdout_df = get_dfs()
 data_df.describe()
 
 # %%
@@ -57,7 +57,7 @@ sns.pairplot(data_df, hue='playlist_genre')
 # ALSO SLOW
 sns.pairplot(data_df, hue='mode')
 # %%
-correlation_matrix = data_ordinal_df.corr()
+correlation_matrix = numerical_df.corr()
 
 # To-do: Plot as confusion-matrix with gradient from invisible to green (0 to 1)
 correlation_matrix
@@ -66,14 +66,14 @@ plt.show()
 
 # %%
 # plotter alle musical features ift genre
-for feature in data_ordinal_df.columns:
+for feature in numerical_df.columns:
     plt.figure(figsize=(12, 8))
     sns.boxplot(x='playlist_genre', y=feature, data=data_df)
     plt.show()
 
 # plot scaled features
 scaler = StandardScaler()
-df = scaler.fit_transform(data_ordinal_df)
+df = scaler.fit_transform(numerical_df)
 for feature in df.columns:
     plt.figure(figsize=(12, 8))
     sns.boxplot(x='playlist_genre', y=feature, data=data_df)
@@ -88,12 +88,12 @@ plt.xticks(rotation=45, ha='right')
 plt.show()
 
 # %%
-for feature in data_ordinal_df.keys():
+for feature in numerical_df.keys():
     sns.barplot(data_df, x='playlist_subgenre', y=feature)
     plt.xticks(rotation=45, ha='right')
     plt.show()
 # %%
-for feature in data_ordinal_df.keys():
+for feature in numerical_df.keys():
     sns.barplot(data_df, x='playlist_genre', y=feature)
     plt.xticks(rotation=45, ha='right')
     plt.show()

@@ -6,8 +6,8 @@ import seaborn as sns
 from sklearn.cluster import KMeans
 from utils import get_dfs
 
-data_df, data_ordinal_df, holdout_df = get_dfs()
-X = data_ordinal_df
+data_df, numerical_df, holdout_df = get_dfs()
+X = numerical_df
 # K-MEANS
 # sum of squared distances
 ssd = []

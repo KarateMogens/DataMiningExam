@@ -25,7 +25,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 
-data_df, data_ordinal_df, holdout_df = get_dfs()
+data_df, numerical_df, holdout_df = get_dfs()
 
 
 def classification_metrics(X, y, model, y_test, y_pred):
@@ -38,17 +38,41 @@ def classification_metrics(X, y, model, y_test, y_pred):
 # %%
 # TRYING TO PREDICT GENRE BASED ON MUSICAL FEATURES
 # dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
-X = data_ordinal_df.drop(['key', 'mode'], axis=1)
+X = numerical_df
 y = data_df['playlist_genre']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
 
-model = DecisionTreeClassifier()
+model = DecisionTreeClassifier(criterion='gini', random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 # overraskende god performance
 classification_metrics(X, y, model, y_test, y_pred)
 
+# %%
+# IMPROVED VERSION OF DECISION TREE INCLUDING GRID SEARCH, DROPPING "MODE" AND "KEY"
+# dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
+X = numerical_df.drop(['mode', 'key'], axis=1)
+y = data_df['playlist_genre']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=42)
+
+model = DecisionTreeClassifier(random_state=42)
+param_grid = {
+    'criterion': ['gini', 'entropy', 'log_loss'],
+    'splitter': ['best', 'random'],
+    'min_samples_split': [2, 4, 8],
+    'max_depth': [5, 10, 20, 30]
+}
+
+grid_search = GridSearchCV(model, param_grid, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+y_pred = grid_search.predict(X_test)
+print(grid_search.best_params_)
+
+# overraskende god performance
+classification_metrics(X, y, grid_search.best_estimator_, y_test, y_pred)
 
 # %%
 # PREDICTING PlAYLIST GENRE BASED ON track_name AND track_album_name
@@ -68,7 +92,7 @@ pipe = Pipeline([
     # ('naive_bayes', MultinomialNB()),
     # ('svc', SVC()),
     # ('lr', LogisticRegression()),
-    ('dt', DecisionTreeClassifier()),
+    ('dt', DecisionTreeClassifier(criterion='gini', random_state=42)),
     # ('rf', RandomForestClassifier()),
     # ('knn', KNeighborsClassifier(n_neighbors=300)),
     # ('gb', GradientBoostingClassifier()),
@@ -88,7 +112,7 @@ print_confusion_matrix(y_test, ypred, y)
 # COMBINING TEXT AND MUSICAL FEATURES FOR GENRE PREDICTION
 
 
-X = data_ordinal_df
+X = numerical_df
 X['text'] = data_df['track_name'] + ' ' + data_df['track_album_name']
 y = data_df['playlist_genre']
 # preprocessing steps for different columns
@@ -101,7 +125,7 @@ preprocessor = ColumnTransformer(
 )
 pipe = Pipeline([
     ('preprocessor', preprocessor),
-    ('dt', DecisionTreeClassifier())
+    ('dt', DecisionTreeClassifier(criterion='gini', random_state=42))
 ])
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -116,14 +140,14 @@ print_confusion_matrix(y_test, ypred, y)
 
 
 # PREDICTING SUBGENRE BASED ON MUSICAL FEATURES
-X = data_ordinal_df.drop(['key', 'mode'], axis=1)
+X = numerical_df.drop(['key', 'mode'], axis=1)
 y = data_df['playlist_subgenre']
 X = X.drop('text', axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
 
-model = DecisionTreeClassifier()
+model = DecisionTreeClassifier(criterion='gini', random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 # overraskende god performance
@@ -132,7 +156,7 @@ classification_metrics(X, y, model, y_test, y_pred)
 
 # %%
 # PREDICTING SUBGENRE BY COMBINED TEXT AND MUSICAL FEATURES
-X = data_ordinal_df
+X = numerical_df
 X['text'] = data_df['track_name'] + ' ' + data_df['track_album_name']
 y = data_df['playlist_subgenre']
 # preprocessing steps for different columns
@@ -162,7 +186,7 @@ print_confusion_matrix(y_test, ypred, y)
 #################### ADDITIONAL MODELS ##################
 # %%
 # TRYING TO PREDICT TRACK POPULARITY BASED ON MUSICAL FEATURES
-X = data_ordinal_df.drop('track_popularity', axis=1)
+X = numerical_df.drop('track_popularity', axis=1)
 y = data_df['track_popularity']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -199,7 +223,7 @@ y = df['decade']
 
 # Apparently very little information is needed for classifying songs based on year
 # X = X[['speechiness', 'danceability']]
-X = data_ordinal_df.drop('text', axis=1)
+X = numerical_df.drop('text', axis=1)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42)
 

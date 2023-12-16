@@ -19,14 +19,14 @@ def get_dfs():
     # create holdout_df to save for final testing of models
     data_df, holdout_df = train_test_split(
         unique_df, random_state=42, test_size=0.2)
-    # Ordinal datapoints: 'track_popularity', 'track_album_release_date', 'danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_ms'
+    # numerical datapoints: 'track_popularity', 'track_album_release_date', 'danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_ms'
 
     nominal_columns = ['track_name', 'track_id', 'track_artist', 'playlist_subgenre', 'track_album_id',
                        'playlist_genre', 'track_album_name', 'playlist_name', 'playlist_id', 'playlist_genre', 'year']
 
-    data_ordinal_df = data_df.drop(nominal_columns, axis=1).copy()
+    data_numerical_df = data_df.drop(nominal_columns, axis=1).copy()
 
-    return data_df, data_ordinal_df, holdout_df
+    return data_df, data_numerical_df, holdout_df
 
 
 def date_to_year(df):
