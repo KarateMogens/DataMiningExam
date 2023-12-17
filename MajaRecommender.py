@@ -73,7 +73,8 @@ data['mood_label'].value_counts()
 
 # %%
 
-# Second experiment: Iterate a grid search look alike setup to find best combination of features
+# Second experiment: 
+# Iterate a grid search look alike setup to find best combination of features
 # that gives the highest possible silhouette score
 
 from itertools import combinations
@@ -147,36 +148,23 @@ print("Best Silhouette Score:", best_silhouette_score)
 
 # %% make model based on best findings
 
-# read data and build df again to start from scratch
+#  after having found the best combo i read data and build df again to start from scratch with the known info
 data = pd.read_csv("spotify_songs.csv")
 columns = ["energy", "valence", "danceability", "tempo"]
 df_kmeans = data.loc[:, columns]
 clusters = 3
 
-# standardize the data
-scaler = StandardScaler()
-scaled_data = scaler.fit_transform(df_kmeans)
+# standardize the data with the MinMax Scaler since this is the most common used in Euclidian space as well as the data is quite normally distributed
+from sklearn.preprocessing import MinMaxScaler
+minmax_scaler = MinMaxScaler()
+minmax_scaled_data = minmax_scaler.fit_transform(df_kmeans)
 
 #%%
-from sklearn.preprocessing import MinMaxScaler
-minmax = MinMaxScaler()
-minmaxscaled = minmax.fit_transform(df_kmeans)
-
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(df_kmeans['energy'], df_kmeans['valence'], df_kmeans['danceability'], c=kmeansModel.labels_, cmap='viridis', s=50)
-ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[:, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
-ax.set_xlabel('energy')
-ax.set_ylabel('valence')
-ax.set_zlabel('danceability')
-plt.show()
-
-
 # apply K-Means
 kmeansModel = KMeans(n_clusters=clusters, random_state=42)
-df_kmeans['cluster'] = kmeansModel.fit_predict(scaled_data)
+df_kmeans['cluster'] = kmeansModel.fit_predict(minmax_scaled_data)
 
-#%% # plotting the resulting clusters in 4d
+#%% # plotting the resulting clusters in 3d
 
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
@@ -189,19 +177,91 @@ plt.show()
 
 # visualisation conclusion:
 # by visualising the clusters as well as considering the silhouette score, the clustering
-# is not really great. there is not distinct seperation between the data points,
-# and thereby not really any distinct clusters.
+# is not really super great. there is not distinct seperation between the data points,
+# and thereby not really any distinct clusters. 
 
-#%%
-# TODO: 
-# Apply labels to the clusters and build the recommender
+# below i will explore a bit further
+
+#%% # using pca to plot it in 2d space and better interpret the clusters
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+pca_df = pca.fit_transform(df_kmeans)
+print(f"Explained variance ratio: {pca.explained_variance_ratio_}")
+
+pca_df_for_plotting = pd.DataFrame(data=pca_df, columns=['PC1', 'PC2'])
+
+# this plot is really weird.. it clearly shows three clusters but h,mmm
+plt.figure(figsize=(10, 8))
+plt.scatter(pca_df_for_plotting['PC1'], pca_df_for_plotting['PC2'])
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('Clusters Plot')
+plt.show()
+
+#%% using stats to look at the clusters
+
+stats = df_kmeans.groupby("cluster").agg(['mean', 'median', 'std'])
+print(stats)
+
+#%% plotting on some features
+
+# dropping tempo since it skews the data
+
+columns = ["energy", "valence", "danceability", "cluster"]
+energy_valence_danceability = df_kmeans.loc[:, columns]
+
+cluster_means = energy_valence_danceability.groupby('cluster').median()
+cluster_means.plot(kind='bar')
+plt.title("features")
+plt.ylabel("mean")
+plt.show()
+
+#%% # joining the data frame with cluster label with data frame with track info
+
+columns_to_join = data[['track_name', 'track_artist']]
+joined_df = df_kmeans.join(columns_to_join)
+joined_df
+
+#%% # map real moods to cluster labels
+
+cluster_rename = {
+    0: 'i_need_an_energy_boost',
+    1: 'i_feel_rhythmic',
+    2: 'i_feel_happy_pop_and_dancy'
+}
+
+joined_df['cluster'] = joined_df['cluster'].replace(cluster_rename)
+
+#%% build the method
+columns_to_final_df = ["cluster", "track_name", "track_artist"]
+final_df = joined_df.loc[:, columns_to_final_df]
+
+final_df
+
+
+#%% create method to call for a song
+
+def recommend_song(final_df, mood):
+    filtered_df = final_df[final_df['cluster'] == mood]
+
+    row = filtered_df.sample().iloc[0]
+    song = row['track_name']
+    artist = row['track_artist']
+    return song, artist
+
+#%% usage of method:
+mood = "i_need_an_energy_boost"
+song, artist = recommend_song(final_df, mood)
+print(song, artist)
+    
+
+#%% # TODO: 
 # Experiment with feature engineering such as:
     # Create bins/Discreatization for popularity and tempo
         # low-medium-high
 
-    # Combine features such as energy * loudness
-        # High score indicates high impact
+    # Combine features such as energy * loudness and then square it
+        # High score indicates high impact. Squaring it will emphasize the differences in the data.
 
-    # Combine features such as valence / energy
-        # High score indicates that the more valence, the more energy
 # %%
