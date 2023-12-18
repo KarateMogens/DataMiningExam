@@ -11,41 +11,81 @@ import csv
 #%%
 CLUSTERS = 25
 
+# Build model for prediction
+data_df, audio_features_df, holdout_df = get_dfs()
+audio_features_df = audio_features_df.drop(columns=["mode", "key", "loudness", "duration_ms", "track_popularity"])
+transformer = StandardScaler()
+scaled_audio_features = transformer.fit_transform(audio_features_df)
+k_means_model = KMeans(init='k-means++', n_clusters=CLUSTERS, random_state=0).fit(scaled_audio_features)
+
 path = "song_recommendation.csv"
 if not os.path.exists(path=path):
 
     print("No .csv file detected. Clustering and creating file for recommendation")
     #Build csv data for recommendation in case .csv is not present
-    data_df, audio_features_df, holdout_df = get_dfs()
-    audio_features_df = audio_features_df.drop(columns=["mode", "key", "loudness", "duration_ms", "track_popularity"])
-
-    transformer = StandardScaler()
-    scaled_audio_features = transformer.fit_transform(audio_features_df)
-    k_means_model = KMeans(init='k-means++', n_clusters=CLUSTERS, random_state=0).fit(scaled_audio_features)
     data_df['cluster'] = k_means_model.labels_
-
-    print(data_df.head())
     data_df.to_csv(path_or_buf=path, index=False)
 
 data_df = pd.read_csv("song_recommendation.csv")
 
+print(holdout_df.keys())
+
+
+#%%
+#Define audio-columns
+audio_columns = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
+holdout_numerical_df = holdout_df[audio_columns]
+
+print(holdout_numerical_df.head())
+#Scale audio-columns
+transformer = StandardScaler()
+holdout_numerical_df = transformer.fit_transform(holdout_numerical_df)
+
+# Replace non-scaled values with scaled values
+holdout_numerical_df = pd.DataFrame(holdout_numerical_df, columns=audio_columns, index=holdout_df.index)
+print(holdout_numerical_df.head())
+holdout_df = pd.concat([holdout_df.drop(columns=audio_columns), holdout_numerical_df], axis=1)
+
+print(holdout_df.head())
+
+# Method for recommending a song based on track_id from holdout_df
+def recommend_song(track_id):
+    audio_columns = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
+    
+    #Find song in holdout_df
+    song = holdout_df.loc[(holdout_df['track_id'] == track_id)]
+    print(f"Listening to {song['track_name'].iloc[0]} by artist {song['track_artist'].iloc[0]}")
+
+    #Predict the cluster of the song
+    song_audio_features = song[audio_columns]
+    predicted_cluster = k_means_model.predict(song_audio_features.to_numpy())[0]
+
+    # Find songs in same cluster
+    cluster_songs = data_df.loc[(data_df['cluster'] == predicted_cluster) & (data_df['track_popularity'].ge(70)) & (data_df['track_id'] != song['track_id'].iloc[0])]
+    # Print to get more information about candidate songs
+    #print(cluster_songs.head(20))
+    # pick a random song from reduced df
+    recommended_song = cluster_songs.sample()
+    #print(recommended_song.iloc[0])
+    print(f"Recommended song is {recommended_song['track_name'].iloc[0]} by artist {recommended_song['track_artist'].iloc[0]}\n")
+
+
+for i in range(20):
+    sample_song_track_id = holdout_df.sample()['track_id'].iloc[0]
+    recommend_song(sample_song_track_id)
 
 # %%
 
 while True:
-    print("Please supply a valid track-id:")
+    print("Please supply a valid track-id from holdout_df:")
     track_id = input()
-    song = data_df.loc[(data_df['track_id'] == track_id)]
+    # Find song in df
+    song = holdout_df.loc[(holdout_df['track_id'] == track_id)]
     if song.empty:
         print('Song not found. Please try again')
         continue
-    #print(song.iloc[0])
-    print(f"Listening to {song['track_name'].iloc[0]} by artist {song['track_artist'].iloc[0]}")
-    cluster_songs = data_df.loc[(data_df['cluster'] == song['cluster'].iloc[0]) & (data_df['track_popularity'].ge(70)) & (data_df['track_id'] != song['track_id'].iloc[0])]
-    print(cluster_songs.head(20))
-    recommended_song = cluster_songs.sample()
-    #print(recommended_song.iloc[0])
-    print(f"Recommended song is {recommended_song['track_name'].iloc[0]} by artist {recommended_song['track_artist'].iloc[0]}")
+    recommend_song(track_id=track_id)
+    
    
 
 # %%
