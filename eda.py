@@ -141,3 +141,11 @@ s.head()
 
 
 # %%
+# Plot distribution of each audio feature:
+for feature in numerical_df.keys():
+    plt.clf()
+    plt.title(f'Histogram of {feature} distribution')
+    plt.hist(numerical_df[feature], bins=100)
+    plt.show()
+
+# %%

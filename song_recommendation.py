@@ -197,7 +197,7 @@ scaled_audio_features = transformer.fit_transform(audio_features_df)
 
 mean_squared_distances = []
 for i in range(2, max_clusters):
-    k_means_model = KMeans(init='k-means++', n_clusters=i, n_init=10).fit(scaled_audio_features)
+    k_means_model = KMeans(init='k-means++', n_clusters=i, random_state=0).fit(scaled_audio_features)
     # Add meansquaredistance for elbow plot
     mean_squared_distances.append([i, k_means_model.inertia_])
 
@@ -213,7 +213,7 @@ plt.show()
 for i in range(2, max_clusters):
 
     # Create Kmeans-model with i clusters
-    k_means_model = KMeans(init='k-means++', n_clusters=i, n_init=10)
+    k_means_model = KMeans(init='k-means++', n_clusters=i, random_state=0)
     k_means_model.fit(scaled_audio_features)
     
     # Get label for each track
@@ -229,7 +229,7 @@ no_clusters = 6
 
 transformer = StandardScaler()
 scaled_audio_features = transformer.fit_transform(audio_features_df)
-k_means_model = KMeans(init='k-means++', n_clusters=no_clusters, n_init=10).fit(scaled_audio_features)
+k_means_model = KMeans(init='k-means++', n_clusters=no_clusters, random_state=0).fit(scaled_audio_features)
 clustering_labels = k_means_model.labels_
 
 #%% 
