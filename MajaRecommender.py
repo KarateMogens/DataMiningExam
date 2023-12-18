@@ -71,6 +71,16 @@ data['mood_label'].value_counts()
 # First experiment conclusion:
 # Defining clusters myself didn't work since too many tuples falls outside of the range of moods i defined
 
+
+#%% First experiment extra experiment:
+
+# TODO: 
+# Active learning:
+# Split the data set so that I generate 100 songs that I give a label
+# Label the 100 songs as either chill or energetic
+#
+
+
 # %%
 
 # Second experiment: 
@@ -182,26 +192,10 @@ plt.show()
 
 # below i will explore a bit further
 
-#%% # using pca to plot it in 2d space and better interpret the clusters
-from sklearn.decomposition import PCA
-
-pca = PCA(n_components=2)
-pca_df = pca.fit_transform(df_kmeans)
-print(f"Explained variance ratio: {pca.explained_variance_ratio_}")
-
-pca_df_for_plotting = pd.DataFrame(data=pca_df, columns=['PC1', 'PC2'])
-
-# this plot is really weird.. it clearly shows three clusters but h,mmm
-plt.figure(figsize=(10, 8))
-plt.scatter(pca_df_for_plotting['PC1'], pca_df_for_plotting['PC2'])
-plt.xlabel('Principal Component 1')
-plt.ylabel('Principal Component 2')
-plt.title('Clusters Plot')
-plt.show()
 
 #%% using stats to look at the clusters
 
-stats = df_kmeans.groupby("cluster").agg(['mean', 'median', 'std'])
+stats = df_kmeans.groupby("cluster").agg(['mean','median', 'std'])
 print(stats)
 
 #%% plotting on some features
@@ -254,10 +248,9 @@ def recommend_song(final_df, mood):
 mood = "i_need_an_energy_boost"
 song, artist = recommend_song(final_df, mood)
 print(song, artist)
-    
 
 #%% # TODO: 
-# Experiment with feature engineering such as:
+# Write about the experiements, and expreess how feature engineering could have been performed such as:
     # Create bins/Discreatization for popularity and tempo
         # low-medium-high
 
