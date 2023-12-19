@@ -89,7 +89,9 @@ def hopkins_statistic(X):
     return H
 
 # %%
-print("Hopkins score:", hopkins_statistic(audio_features_df))
+transformer = StandardScaler()
+scaled_audio_features = transformer.fit_transform(audio_features_df)
+print("Hopkins score:", hopkins_statistic(scaled_audio_features))
 
 # %%
 # ------            Method for plotting clustering + silhouette chart             -------
