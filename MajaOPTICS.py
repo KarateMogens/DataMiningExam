@@ -24,8 +24,10 @@ df
 
 scaler = StandardScaler()
 scaled_df = scaler.fit_transform(df)
+
 # %%
-# initializing the optics model
+# initializing the optics model an testing with different parameter values
+
 #optics = OPTICS(min_samples=5, xi=0.05, min_cluster_size=0.05)
 #optics = OPTICS(min_samples=50, xi=0.5, min_cluster_size=0.5)
 #optics = OPTICS(min_samples=500, min_cluster_size=50)
@@ -38,6 +40,7 @@ optics.fit(scaled_df)
 
 # %%
 # storing the results
+# below code is develoepd with help from sci-kit learns documentation
 
 from sklearn.cluster import cluster_optics_dbscan
 import numpy as np
