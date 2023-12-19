@@ -89,6 +89,31 @@ plt.xlabel('Features')
 plt.ylabel('Importance')
 plt.show()
 
+# %%
+
+##### Using our model on the test set
+
+X = holdout_df.drop('danceability', axis=1)
+y = holdout_df['danceability']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.30, random_state=42)
+
+#fitting our pipeline with input features and target feature to train on the dataset
+pipeline.fit(X_train, y_train)
+
+#using our trained pipeline to make predictions 
+predictions = pipeline.predict(X_test)
+
+#metrics to see performance of our supervised regression model
+mse = mean_squared_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+
+print("Mean Squared Error: " + str(round(mse, 3)))
+print("R2: " + str(round(r2 * 100, 2)) + "%")
+print("Mean Absolute Error: " + str(round(mae, 3)))
+
 
 #%%
 
