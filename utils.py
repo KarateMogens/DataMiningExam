@@ -17,7 +17,7 @@ def get_dfs():
     unique_df = date_to_year(unique_df)
     unique_df = unique_df.dropna()
     # create holdout_df to save for final testing of models
-    data_df, holdout_df = train_test_split(
+    data_df, test_df = train_test_split(
         unique_df, random_state=42, test_size=0.2)
     # numerical datapoints: 'track_popularity', 'track_album_release_date', 'danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_ms'
 
@@ -26,7 +26,7 @@ def get_dfs():
 
     data_numerical_df = data_df.drop(nominal_columns, axis=1).copy()
 
-    return data_df, data_numerical_df, holdout_df
+    return data_df, data_numerical_df, test_df
 
 
 def date_to_year(df):
