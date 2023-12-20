@@ -1,19 +1,22 @@
-#%%
+# %%
+from sklearn.metrics import silhouette_score
+from itertools import combinations
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.model_selection import StratifiedShuffleSplit
+import pandas as pd
 from utils import get_dfs
 (full_df, float_df, holdout) = get_dfs()
 full_df.columns
 
 # %% #imports and data loading
-import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
 
-data = pd.read_csv("spotify_songs.csv")
+# data = pd.read_csv("spotify_songs.csv")
 
 
 # %%
-# First experiment: 
+# First experiment:
 # Setting range myself via dictionary by which I determine mood
 
 # selecting relevant columns
@@ -23,7 +26,7 @@ columns = ["track_name", "energy", "valence", "danceability"]
 data = full_df.loc[:, columns]
 data
 
-#%% # creating mood dictionaries 
+# %% # creating mood dictionaries
 
 # in this mood dict i tried to assign distinct values to each attribute/mood. however, ~19000 tuples were assigned with undefined mood
 distinct_moods = {
@@ -43,22 +46,29 @@ overlapping_moods = {
 }
 
 # %% # defining a function that assigns moods as labels defined by a specific range with assitence in code writing from chat gpt
+
+
 def assign_mood_label(entry):
     for mood, ranges in distinct_moods.items():
         if all(ranges[feature][0] <= entry[feature] <= ranges[feature][1] for feature in ['valence', 'energy']):
             print(f"Assigned '{mood}' to entry {entry.name}")
             return mood
-    print(f"Assigned 'undefined mood' to entry {entry.name}: valence={entry['valence']}, energy={entry['energy']}")
+    print(
+        f"Assigned 'undefined mood' to entry {entry.name}: valence={entry['valence']}, energy={entry['energy']}")
     return 'undefined mood'
 
-#%%
+# %%
+
+
 def assign_mood_label(entry):
     for mood, ranges in overlapping_moods.items():
         if all(ranges[feature][0] <= entry[feature] <= ranges[feature][1] for feature in ['valence', 'energy']):
             print(f"Assigned '{mood}' to entry {entry.name}")
             return mood
-    print(f"Assigned 'undefined mood' to entry {entry.name}: valence={entry['valence']}, energy={entry['energy']}")
+    print(
+        f"Assigned 'undefined mood' to entry {entry.name}: valence={entry['valence']}, energy={entry['energy']}")
     return 'undefined mood'
+
 
 # %% # appending the new column with the moods
 data['mood_label'] = data.apply(assign_mood_label, axis=1)
@@ -72,15 +82,11 @@ data['mood_label'].value_counts()
 # Furthermore, it does not really qualify as a unsupervised method, as it inherently label the tuples based on hard coding the moods.
 
 # %%
-# Second experiment: 
+# Second experiment:
 # Iterate a grid search look alike setup to find best combination of features
 # that gives the highest possible silhouette score.
 # Applying k-means
 
-from itertools import combinations
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
 
 # read data again to start from scratch in experiment 2
 data = pd.read_csv("spotify_songs.csv")
@@ -98,7 +104,8 @@ features = columns_float
 all_possible_feature_combinations = list(combinations(features, 4))
 
 # convert combinations to a list of tuples so that the iterator can run over the combinations
-all_possible_feature_combinations = [tuple(combination) for combination in all_possible_feature_combinations]
+all_possible_feature_combinations = [
+    tuple(combination) for combination in all_possible_feature_combinations]
 
 # initialize variables to store the best feature combination and silhouette score
 best_features = None
@@ -111,14 +118,14 @@ scaled_data = scaler.fit_transform(df_float)
 # specify the range of clusters to consider. i specified the range to be between 2 and 10 clusters.
 cluster_range = range(2, 10)
 
-#%%
+# %%
 
 # iterate through the combinations (grid search)
 
 # iterate over all possible feature combinations. the code was developed with help from chat gpt
 for feature_combination in all_possible_feature_combinations:
     print(f"\nEvaluating Feature Combination: {feature_combination}")
-    
+
     # Subsetting the DataFrame with selected features
     subset_data = df_float[list(feature_combination)].values
 
@@ -145,56 +152,71 @@ print("Best Number of Clusters:", best_num_clusters)
 print("Best Silhouette Score:", best_silhouette_score)
 
 # Second experiment conclusion:
-# The best feature combination is the four features 'energy', 'valence', 'danceability', and 'tempo' 
+# The best feature combination is the four features 'energy', 'valence', 'danceability', and 'tempo'
 # with a number of three clusters. It gives a score at 0.62. This is alright, however not great. Therefore we continue with investigating the clusters.
 
-# %% 
+# %%
 
 # After having found the best feature combination and clusters, I make a model based on these findings
 
 #  after having found the best combo i read data and build df again to start from scratch
-data = pd.read_csv("spotify_songs.csv")
+# data = pd.read_csv("spotify_songs.csv")
 columns = ["energy", "valence", "danceability", "tempo"]
-df_kmeans = data.loc[:, columns]
+df_kmeans = full_df.loc[:, columns]
 clusters = 3
 
 # standardize the data
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(df_kmeans)
 
-#%%
+# %%
 # apply K-Means
 kmeansModel = KMeans(n_clusters=clusters, random_state=42)
 df_kmeans['cluster'] = kmeansModel.fit_predict(scaled_data)
-
-#%% # plotting the resulting clusters in 3d for visual inspection
+# df_samples = StratifiedShuffleSplit(df_kmeans)
+# sample = df_samples[0]
+# sample
+sample = df_kmeans.sample(2500)
+# %% # plotting the resulting clusters in 3d for visual inspection
 
 fig = plt.figure(figsize=(12, 10))
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(df_kmeans['energy'], df_kmeans['valence'], df_kmeans['danceability'], c=kmeansModel.labels_, cmap='viridis', s=50)
-ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[:, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
+ax.scatter(sample['energy'], sample['valence'], sample['danceability'],
+           c=sample['cluster'], cmap='viridis', s=50)
+# ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[
+#    :, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
 ax.set_xlabel('energy')
 ax.set_ylabel('valence')
 ax.set_zlabel('danceability')
 plt.show()
-
+# %%
+fig = plt.figure(figsize=(12, 10))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(sample['valence'], sample['danceability'], sample['energy'],
+           c=sample['cluster'], cmap='viridis', s=50, alpha=0.2)
+# ax.scatter(kmeansModel.cluster_centers_[:, 0], kmeansModel.cluster_centers_[
+#    :, 1], kmeansModel.cluster_centers_[:, 2], marker='x', s=200, linewidths=3, color='r')
+ax.set_xlabel('energy')
+ax.set_ylabel('valence')
+ax.set_zlabel('danceability')
+plt.show()
 # Visualisation conclusion:
 # By visualising the clusters as well as considering the silhouette score, the clustering
 # is not really super great. there is not distinct seperation between the data points,
-# and thereby not really any distinct clusters. 
+# and thereby not really any distinct clusters.
 
 # Below i will explore a bit further with descriptive statistics
 
 
-#%% 
+# %%
 
-#using stats to look at the clusters
-stats = df_kmeans.groupby("cluster").agg(['mean','median', 'std'])
+# using stats to look at the clusters
+stats = df_kmeans.groupby("cluster").agg(['mean', 'median', 'std'])
 print(stats)
 
 # Below I explore a bit further plotting the cluster features and their mean score
 
-#%% 
+# %%
 
 # plotting on some of the features
 # dropping tempo since it skews the plot
@@ -208,13 +230,13 @@ plt.title("features")
 plt.ylabel("mean")
 plt.show()
 
-#%% # joining the data frame with cluster label with data frame with track info
+# %% # joining the data frame with cluster label with data frame with track info
 
 columns_to_join = data[['track_name', 'track_artist']]
 joined_df = df_kmeans.join(columns_to_join)
 joined_df
 
-#%% 
+# %%
 # building the recommender even though the clustering is not working greatly
 # map real moods to cluster labels based on my interpretation of the clusters
 
@@ -226,12 +248,13 @@ cluster_rename = {
 
 joined_df['cluster'] = joined_df['cluster'].replace(cluster_rename)
 
-#%% 
+# %%
 
-# build the method 
+# build the method
 columns_to_final_df = ["cluster", "track_name", "track_artist"]
 final_df = joined_df.loc[:, columns_to_final_df]
 final_df
+
 
 def recommend_song(final_df, mood):
     filtered_df = final_df[final_df['cluster'] == mood]
@@ -241,9 +264,10 @@ def recommend_song(final_df, mood):
     artist = row['track_artist']
     return song, artist
 
-#%% 
+# %%
 
 # testing the method
+
 
 # enter the mood here
 mood = "i_need_an_energy_boost"
@@ -252,14 +276,14 @@ mood = "i_need_an_energy_boost"
 song, artist = recommend_song(final_df, mood)
 print(song, artist)
 
-#%% 
+# %%
 
-# Ideas for furhter studies: 
+# Ideas for furhter studies:
 # Write about the experiements, and expreess how feature engineering could have been performed such as:
-    # Create bins/Discreatization for popularity and tempo
-        # low-medium-high
+# Create bins/Discreatization for popularity and tempo
+# low-medium-high
 
-    # Combine features such as energy * loudness and then square it
-        # High score indicates high impact. Squaring it will emphasize the differences in the data.
+# Combine features such as energy * loudness and then square it
+# High score indicates high impact. Squaring it will emphasize the differences in the data.
 
 # %%
