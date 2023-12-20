@@ -54,30 +54,14 @@ sns.pairplot(data_df)
 # TAKES A LONG TIME!
 sns.pairplot(data_df, hue='playlist_genre')
 # %%
-# ALSO SLOW
-sns.pairplot(data_df, hue='mode')
-# %%
-correlation_matrix = numerical_df.corr()
 
-# To-do: Plot as confusion-matrix with gradient from invisible to green (0 to 1)
+# %%
+# Looking at relationships between audio features
+correlation_matrix = numerical_df.corr()
 correlation_matrix
+# %%
 sns.heatmap(correlation_matrix, cmap='coolwarm', fmt='.1f')
 plt.show()
-
-# %%
-# plotter alle musical features ift genre
-for feature in numerical_df.columns:
-    plt.figure(figsize=(12, 8))
-    sns.boxplot(x='playlist_genre', y=feature, data=data_df)
-    plt.show()
-
-# plot scaled features
-scaler = StandardScaler()
-df = scaler.fit_transform(numerical_df)
-for feature in df.columns:
-    plt.figure(figsize=(12, 8))
-    sns.boxplot(x='playlist_genre', y=feature, data=data_df)
-    plt.show()
 # %%
 plt.hist(data_df['year'], bins=62)
 # %%
@@ -86,6 +70,14 @@ sns.barplot(data_df, x='playlist_genre', y='track_popularity')
 sns.barplot(data_df, x='playlist_subgenre', y='track_popularity')
 plt.xticks(rotation=45, ha='right')
 plt.show()
+
+# %%
+# plotting all audio features in relation to genre
+for feature in numerical_df.columns:
+    plt.figure(figsize=(12, 8))
+    sns.boxplot(x='playlist_genre', y=feature, data=data_df)
+    plt.show()
+
 
 # %%
 for feature in numerical_df.keys():
@@ -100,45 +92,11 @@ for feature in numerical_df.keys():
 
 # %%
 plot_features_by_year(data_df)
-# %%
-# MÅSKE ER DE NÆSTE TO LIDT OVERKILL
-plot_features_by_year_compare_genres(data_df)
-# %%
-plot_yearly_features_by_genre(data_df)
 
 
 # INVESTIGATING MOST EXTREME TRACKS FOR EACH MUSICAL FEATURE
 # %%
 print_min_max_features()
-
-
-# EXTRA JUST FOR
-# %%
-# bare for at bevise at 'key' og 'mode' ikke nødvendigvis er korrekte
-bjork = data_df[data_df['track_artist'] == 'Björk']
-bjork.head()
-# %%
-# HUMBLE. er både kategoriseret som pop og rap
-s = data_df[data_df['track_artist'] == 'Kendrick Lamar']
-s.head()
-# # s['key'].head()
-# # %%
-# s = data_df[data_df['track_artist'] == 'Taylor Swift']
-# s.head()
-
-
-# # %%
-# sns.histplot(data=data_df, x='year', hue='playlist_genre', multiple='stack')
-
-# # %%
-# # ved ikke helt med de her. Prøver bare at se hvor stor en andel hvert år er fra hver genre
-# sns.histplot(data=data_df, x='year', hue='playlist_genre',
-#              multiple='stack', stat='proportion', cumulative=True)
-
-# # %%
-# sns.relplot(data_df.sample(500), x='energy',
-#             y='danceability', size='track_popularity', hue='key')
-
 
 # %%
 # Plot distribution of each audio feature:
@@ -148,4 +106,21 @@ for feature in numerical_df.keys():
     plt.hist(numerical_df[feature], bins=100)
     plt.show()
 
+# EXTRA JUST FOR
+# %%
+# investigating whether key and mode make sense
+bjork = data_df[data_df['track_artist'] == 'Björk']
+bjork.head()
+# %%
+# HUMBLE. is both categorized as pop and rap
+s = data_df[data_df['track_artist'] == 'Kendrick Lamar']
+s.head()
+
+
+# %%
+# plotting the evolution of all features
+# MAYBE OVERKILL
+plot_features_by_year_compare_genres(data_df)
+# %%
+plot_yearly_features_by_genre(data_df)
 # %%
