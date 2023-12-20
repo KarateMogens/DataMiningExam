@@ -24,6 +24,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.dummy import DummyClassifier
 
 data_df, numerical_df, test_df = get_dfs()
 
@@ -36,6 +37,22 @@ def classification_metrics(X, y, model, y_test, y_pred):
     plot_feature_importances(model, X)
 
 
+# %%
+
+# BASELINE MODEL FOR COMPARISON
+X = numerical_df
+y = data_df['playlist_genre']
+X_train, X_validation, y_train, y_validation = train_test_split(
+    X, y, test_size=0.33, random_state=42)
+majority_classifier = DummyClassifier(strategy='stratified')
+
+
+majority_classifier.fit(X_train, y_train)
+
+y_pred_majority = majority_classifier.predict(X_validation)
+
+
+print_confusion_matrix(y_validation, y_pred_majority, y)
 # %%
 # TRYING TO PREDICT GENRE BASED ON MUSICAL FEATURES
 # dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
@@ -183,6 +200,9 @@ y_pred = pipe.predict(X_test)
 # overraskende god performance
 
 print_confusion_matrix(y_test, y_pred, y)
+
+
+########### models not included in report #######
 # %%
 # PREDICTING SUBGENRE BASED ON MUSICAL FEATURES
 X = numerical_df.drop(['key', 'mode'], axis=1)
@@ -292,3 +312,5 @@ classification_metrics(X, y, model, y_validation, y_pred)
 # model.fit(X_train, y_train)
 # ypred = model.predict(X_test)
 # classification_metrics(X, y, model, y_test, y_pred)
+
+# %%
