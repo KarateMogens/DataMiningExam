@@ -28,7 +28,7 @@ from sklearn.dummy import DummyClassifier
 
 data_df, numerical_df, test_df = get_dfs()
 
-# define function to easily print and plot metrics in one line for all models
+# function to easily print and plot metrics in one line for all models
 
 
 def classification_metrics(X, y, model, y_test, y_pred):
@@ -44,18 +44,17 @@ X = numerical_df
 y = data_df['playlist_genre']
 X_train, X_validation, y_train, y_validation = train_test_split(
     X, y, test_size=0.33, random_state=42)
-majority_classifier = DummyClassifier(strategy='stratified')
+dummy = DummyClassifier(strategy='uniform')
 
 
-majority_classifier.fit(X_train, y_train)
+dummy.fit(X_train, y_train)
 
-y_pred_majority = majority_classifier.predict(X_validation)
+y_pred_majority = dummy.predict(X_validation)
 
 
 print_confusion_matrix(y_validation, y_pred_majority, y)
 # %%
 # TRYING TO PREDICT GENRE BASED ON MUSICAL FEATURES
-# dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
 X = numerical_df
 y = data_df['playlist_genre']
 X_train, X_validation, y_train, y_validation = train_test_split(
@@ -64,7 +63,7 @@ X_train, X_validation, y_train, y_validation = train_test_split(
 model = DecisionTreeClassifier(criterion='gini', random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_validation)
-# overraskende god performance
+
 classification_metrics(X, y, model, y_validation, y_pred)
 
 # FINAL PREDICTION USING TEST SET
@@ -74,11 +73,11 @@ X_test = test_df[X.columns]
 y_test = test_df['playlist_genre']
 # final prediction
 y_pred = model.predict(X_test)
-# overraskende god performance
+
 classification_metrics(X, y, model, y_test, y_pred)
 # %%
 # IMPROVED VERSION OF DECISION TREE INCLUDING GRID SEARCH, DROPPING "MODE" AND "KEY"
-# dropping 'year' since it is not a musical feature (also dropping 'mode' and 'key' since they do not make any difference in the result)
+#  dropping 'mode' and 'key' since they do not make any difference in the result
 X = numerical_df.drop(['mode', 'key'], axis=1)
 y = data_df['playlist_genre']
 X_train, X_validation, y_train, y_validation = train_test_split(
@@ -98,7 +97,6 @@ grid_search.fit(X_train, y_train)
 y_pred = grid_search.predict(X_validation)
 print(grid_search.best_params_)
 
-# overraskende god performance
 classification_metrics(X, y, grid_search.best_estimator_, y_validation, y_pred)
 
 # FINAL PREDICTION USING TEST SET
@@ -108,7 +106,6 @@ X_test = test_df[X.columns]
 y_test = test_df['playlist_genre']
 # final prediction
 y_pred = grid_search.predict(X_test)
-# overraskende god performance
 classification_metrics(X, y, grid_search.best_estimator_, y_test, y_pred)
 
 # %%
@@ -153,7 +150,6 @@ X_test = test_df['text']
 y_test = test_df['playlist_genre']
 # final prediction
 y_pred = pipe.predict(X_test)
-# overraskende god performance
 
 print_confusion_matrix(y_test, y_pred, y)
 # %%
@@ -187,7 +183,7 @@ print(classification_report(y_validation, ypred))
 print_confusion_matrix(y_validation, ypred, y)
 # %%
 # FINAL PREDICTION USING TEST SET
-# %%
+
 X_test = test_df[numerical_df.columns]
 
 X_test['text'] = test_df['track_name'] + ' ' + test_df['track_album_name']
@@ -197,7 +193,6 @@ X_test['text'] = test_df['track_name'] + ' ' + test_df['track_album_name']
 y_test = test_df['playlist_genre']
 # final prediction
 y_pred = pipe.predict(X_test)
-# overraskende god performance
 
 print_confusion_matrix(y_test, y_pred, y)
 
@@ -215,8 +210,6 @@ X_train, X_validation, y_train, y_validation = train_test_split(
 model = DecisionTreeClassifier(criterion='gini', random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_validation)
-# overraskende god performance
-# multilabel_confusion_matrix(y_test, y_pred)
 classification_metrics(X, y, model, y_validation, y_pred)
 
 # %%
@@ -251,7 +244,7 @@ print_confusion_matrix(y_validation, ypred, y)
 #################### ADDITIONAL MODELS ##################
 # %%
 # TRYING TO PREDICT TRACK POPULARITY BASED ON MUSICAL FEATURES
-X = numerical_df.drop('track_popularity', axis=1)
+X = numerical_df.drop(['track_popularity', 'text'], axis=1)
 y = data_df['track_popularity']
 X_train, X_validation, y_train, y_validation = train_test_split(
     X, y, test_size=0.33, random_state=42)
@@ -281,12 +274,12 @@ metrics = {"mae": mae, "mse": mse, "rmse": rmse, "r2": r2}
 pprint(metrics)
 print(grid_search.best_params_)
 
+
 # %%
+# Trying to predict decade based on audio features
 df = year_to_decade(data_df)
 y = df['decade']
 
-
-# Apparently very little information is needed for classifying songs based on year
 # X = X[['speechiness', 'danceability']]
 X = numerical_df.drop('text', axis=1)
 X_train, X_validation, y_train, y_validation = train_test_split(
